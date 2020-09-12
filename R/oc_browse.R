@@ -26,15 +26,18 @@ oc_browse <- function(type = c("countries", "projects", "descriptions"),
   type <- match.arg(type)
 
   url <- paste0(base_url(), "sets/")
-  if (print_url) message(url)
+  if (print_url) {
+    message(url)
+  }
 
-  req <- GET(url, query = list(), accept_json(), ...)
-  warn_for_status(req)
+  print(url)
+  req <- httr::GET(url, query = list(), httr::accept_json(), ...)
+  httr::warn_for_status(req)
 
-  response <- content(req, as = "text")
+  response <- httr::content(req, as = "text")
 
   if (identical(response, "")) stop("")
-  result <- fromJSON(response)
+  result <- jsonlite::fromJSON(response)
 
   result <- switch(type,
          "countries" = result$`oc-api:has-facets`$`oc-api:has-id-options`[[1]],
@@ -43,5 +46,4 @@ oc_browse <- function(type = c("countries", "projects", "descriptions"),
   )
 
   oc_dataframe(result)
-
 }
