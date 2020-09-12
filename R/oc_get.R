@@ -56,8 +56,6 @@ oc_get_projects <- function(project) {
 
 
 
-
-
 oc_get_records <- function(field, type, category) {
   UseMethod("oc_get_records")
 }
@@ -84,11 +82,11 @@ oc_get_records.character <- function(field, type, category) {
 get_row <- function(row, type) {
   message("Getting data for ", row$label)
 
-  req <- GET(row$id, accept_json())
-  warn_for_status(req)
-  response <- content(req, as = "text")
+  req <- httr::GET(row$id, httr::accept_json())
+  httr::warn_for_status(req)
+  response <- httr::content(req, as = "text")
   if (identical(response, "")) stop("")
-  result <- fromJSON(response)
+  result <- jsonlite::fromJSON(response)
 
   result <- switch(type,
          "locations" = result$`oc-api:has-facets`$`oc-api:has-id-options`[[1]],

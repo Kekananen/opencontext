@@ -25,25 +25,26 @@ oc_browse <- function(type = c("countries", "projects", "descriptions"),
 
   type <- match.arg(type)
 
-  url <- paste0(base_url(), "sets/")
+  url <- paste0("https://opencontext.org/", "sets/")
   if (print_url) {
     message(url)
   }
 
-  print(url)
   req <- httr::GET(url, query = list(), httr::accept_json(), ...)
   httr::warn_for_status(req)
 
   response <- httr::content(req, as = "text")
-
-  if (identical(response, "")) stop("")
+  
+  if (identical(response, "")) {
+    stop("")
+  }
   result <- jsonlite::fromJSON(response)
-
+  
   result <- switch(type,
          "countries" = result$`oc-api:has-facets`$`oc-api:has-id-options`[[1]],
          "projects"  = result$`oc-api:has-facets`$`oc-api:has-id-options`[[2]],
          "descriptions"  = result$`oc-api:has-facets`$`oc-api:has-id-options`[[3]]
   )
-
+  
   oc_dataframe(result)
 }
