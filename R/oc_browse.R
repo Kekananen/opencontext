@@ -15,13 +15,15 @@
 #'   query. You can navigate to this URL to see the web interface's version of
 #'   the data returned by the API.
 #' @param ... Additional arguments passed to \code{\link[httr]{GET}}.
+#' @param show_raw Whether or not to show the counts and other raw data or just the 
+#' associated descriptions i.e counties, categories, etc.
 #' @return A data frame with additional class \code{oc_dataframe}.
 #' @examples
 #' oc_browse("countries")
 #' oc_browse("projects")
 #' @export
 oc_browse <- function(type = c("countries", "projects", "descriptions"),
-                      print_url = FALSE, ...) {
+                      print_url = FALSE, show_raw = FALSE, ...) {
 
   type <- match.arg(type)
 
@@ -40,11 +42,21 @@ oc_browse <- function(type = c("countries", "projects", "descriptions"),
   }
   result <- jsonlite::fromJSON(response)
   
-  result <- switch(type,
-         "countries" = result$`oc-api:has-facets`$`oc-api:has-id-options`[[1]],
-         "projects"  = result$`oc-api:has-facets`$`oc-api:has-id-options`[[2]],
-         "descriptions"  = result$`oc-api:has-facets`$`oc-api:has-id-options`[[3]]
-  )
-  
+  if (show_raw) {
+    result <- switch(type,
+            "countries" = result$`oc-api:has-facets`$`oc-api:has-id-options`[[1]]["label"],
+            "projects"  = result$`oc-api:has-facets`$`oc-api:has-id-options`[[2]]["label"],
+            "descriptions"  = result$`oc-api:has-facets`$`oc-api:has-id-options`[[3]]["label"],
+    )
+  } else {
+    result <- switch(type,
+                     "countries" = result$`oc-api:has-facets`$`oc-api:has-id-options`[[1]],
+                     "projects"  = result$`oc-api:has-facets`$`oc-api:has-id-options`[[2]],
+                     "descriptions"  = result$`oc-api:has-facets`$`oc-api:has-id-options`[[3]],
+    )
+  }
+
   oc_dataframe(result)
 }
+
+
