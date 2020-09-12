@@ -25,7 +25,7 @@ oc_browse <- function(type = c("countries", "projects", "descriptions"),
 
   type <- match.arg(type)
 
-  url <- paste0("https://opencontext.org/", "sets/")
+  url <- paste0(base_url(), "sets/")
   if (print_url) {
     message(url)
   }
