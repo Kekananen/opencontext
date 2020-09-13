@@ -82,7 +82,6 @@ oc_pipeline <- function() {
   pb = txtProgressBar(min = 0, max = nrow(locations_results), initial = 0) 
   county_result <- c()
   for(i in 1:nrow(locations_results)) {
-    print(paste0("Fetching ", i, " out of ", nrow(locations_results), ": currently ", locations_results[i,4]))
     req <- httr::GET(locations_results[i,2], query = list(), httr::accept_json())
     httr::warn_for_status(req)
      
@@ -90,21 +89,18 @@ oc_pipeline <- function() {
     if (identical(response, "")) {
       stop("")
     }
+
     county_info <- jsonlite::fromJSON(response)
     counties <- county_info$`oc-api:has-facets`$`oc-api:has-id-options`[[1]]
-    View(counties)
-    
-    counties$"sub_region" <- replicate(nrow(county_info), locations_results[i,4])
-    # 
-    # county_result <- rbind(county_result, counties)
+    counties$"sub_region" <- replicate(nrow(counties), locations_results[i,4])
+     
+    county_result <- rbind(county_result, counties)
     
     setTxtProgressBar(pb,i)
-    
-  #   counties <- oc_county_info(locations_results[i,7], locations_results[i,4])
-  #   counties$"sub_region" <- replicate(nrow(counties), locations_results[i,4])
-  #   county_result <- rbind(county_result, counties)
   }
   View(county_result)
+  
+  
   # 
   # req <- httr::GET(url, query = list(), httr::accept_json())
   # httr::warn_for_status(req)
