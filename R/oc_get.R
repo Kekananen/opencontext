@@ -41,6 +41,31 @@ oc_get_locations <- function(country, locations, type = c("projects", "descripti
   oc_get_records(type)
 }
 
+#' @title Get Locations
+#' 
+#' Retrieves all possible locations within a country.
+#'
+#' @param country A country name
+#' @examples
+#' oc_get_locations("United States")
+#' @export
+oc_list_locations <- function(country = "") {
+  url <- paste0(base_url(), "sets/")
+  url <- paste0(url, gsub(" ", "+", country), ".json")
+  
+  req <- httr::GET(url, query = list(), httr::accept_json())
+  httr::warn_for_status(req)
+  
+  response <- httr::content(req, as = "text")
+  
+  if (identical(response, "")) {
+    stop("")
+  }
+  locations <- jsonlite::fromJSON(response)
+  locations_oc <- locations$`oc-api:has-facets`$`oc-api:has-id-options`[[1]]
+}
+
+
 #' Retrieve data given an Open Context project name
 #'
 #' @param project A character vector of project names

@@ -59,4 +59,3 @@ oc_browse <- function(type = c("countries", "projects", "descriptions"),
   oc_dataframe(result)
 }
 
-
