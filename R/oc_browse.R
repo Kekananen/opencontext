@@ -98,20 +98,33 @@ oc_pipeline <- function() {
     
     setTxtProgressBar(pb,i)
   }
-  View(county_result)
+  colnames(locations_results)[4] <- "sub_region"
+  county_result <- merge(locations_results[,c(4,7)], county_result, 
+                         by  = "sub_region", all.x = TRUE)
   
-  
-  # 
-  # req <- httr::GET(url, query = list(), httr::accept_json())
-  # httr::warn_for_status(req)
-  # 
-  # response <- httr::content(req, as = "text")
-  # 
-  # if (identical(response, "")) {
-  #   stop("")
-  # }
-  # locations <- jsonlite::fromJSON(response)
-  # locations_oc <- locations$`oc-api:has-facets`$`oc-api:has-id-options`[[1]]
-  # View(locations_oc)
+  print(paste0("Fetching Local Information"))
+  pb = txtProgressBar(min = 0, max = nrow(county_result), initial = 0)
+  local_result <- c()
+  for(i in 1:nrow(county_result)) {
+    req <- httr::GET(county_result[i,2], query = list(), httr::accept_json())
+    httr::warn_for_status(req)
+
+    response <- httr::content(req, as = "text")
+    if (identical(response, "")) {
+      stop("")
+    }
+
+    local_result <- jsonlite::fromJSON(response)
+    local <- local_result$`oc-api:has-facets`$`oc-api:has-id-options`[[1]]
+    local$"sub_region" <- replicate(nrow(local), county_result[i,4])
+
+    local_result <- rbind(local_result, local)
+
+    setTxtProgressBar(pb,i)
+  }
+  colnames(county_result)[6] <- "county"
+  county_result <- merge(county_result[,c(1,2,6)], local_result, 
+                         by  = "county", all.x = TRUE)
+  View(local_result)
 }
 
